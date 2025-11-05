@@ -11,23 +11,25 @@
   <div class="wrapper">
     <!-- LEFT: big anatomy image -->
     <div class="body-panel">
-      <div class="body-image">
-        <!-- use the image you uploaded -->
+      <div class="body-image" id="bodyImage">
+        <!-- your current image (torso to knees) -->
         <img src="OIP.jpg" alt="Human anatomy" />
 
-        <!-- hotspots - adjust top/left to match your image -->
-        <button class="hotspot" data-region="chest" style="top:32%;left:48%;"></button>
-        <button class="hotspot" data-region="abdomen" style="top:47%;left:49%;"></button>
-        <button class="hotspot" data-region="neck" style="top:22%;left:49%;"></button>
-        <button class="hotspot" data-region="left-arm" style="top:40%;left:30%;"></button>
-        <button class="hotspot" data-region="right-arm" style="top:40%;left:68%;"></button>
+        <!-- start with more hotspots; you can drag them -->
+        <button class="hotspot" data-region="head" style="top:15%;left:50%;"></button>
+        <button class="hotspot" data-region="chest" style="top:30%;left:50%;"></button>
+        <button class="hotspot" data-region="heart" style="top:34%;left:47%;"></button>
+        <button class="hotspot" data-region="abdomen" style="top:47%;left:50%;"></button>
+        <button class="hotspot" data-region="pelvis" style="top:58%;left:50%;"></button>
+        <button class="hotspot" data-region="left-abdomen" style="top:47%;left:42%;"></button>
+        <button class="hotspot" data-region="right-abdomen" style="top:47%;left:58%;"></button>
       </div>
     </div>
 
     <!-- RIGHT: diagnostic panel -->
     <div class="panel">
       <h1>Root Health · Glass Human</h1>
-      <p>Select a body area, layer and sensation — no typing.</p>
+      <p>Select or drag a point on the body, then choose system + sensation.</p>
 
       <!-- zoom control -->
       <div class="zoom-row">
@@ -37,7 +39,10 @@
 
       <h2>Selected area: <span id="selected">none</span></h2>
 
-      <h3>Layer</h3>
+      <h3>Body system / organ</h3>
+      <div id="systemChips" class="chips"></div>
+
+      <h3 style="margin-top:1rem;">Layer</h3>
       <div id="layerChips" class="chips"></div>
 
       <h3 style="margin-top:1rem;">Sensation</h3>
@@ -54,6 +59,8 @@
       <div id="result" class="result" style="display:none;">
         <h3>Insight</h3>
         <p id="summary"></p>
+        <ul id="factors"></ul>
+        <ul id="actions"></ul>
         <p class="small">Educational only. Not medical advice.</p>
       </div>
     </div>
