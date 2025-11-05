@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Glass Human Diagnostic</title>
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="description" content="Touch-only BodyMind diagnostic. Question · Discover · Act." />
+</head>
+<body>
+  <div class="wrapper">
+    <div class="body-panel">
+      <div class="body-image">
+        <!-- swap this file name for your nice anatomy image -->
+        <img src="anatomy.png" alt="Human anatomy" />
+        <!-- clickable hotspots -->
+        <button class="hotspot" data-region="chest" style="top:32%;left:48%;"></button>
+        <button class="hotspot" data-region="abdomen" style="top:47%;left:49%;"></button>
+        <button class="hotspot" data-region="neck" style="top:22%;left:49%;"></button>
+        <button class="hotspot" data-region="left-arm" style="top:40%;left:30%;"></button>
+        <button class="hotspot" data-region="right-arm" style="top:40%;left:68%;"></button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h1>Root Health · Glass Human</h1>
+      <p>Select a body area, layer and sensation — no typing.</p>
+
+      <h2>Selected area: <span id="selected">none</span></h2>
+
+      <h3>Layer</h3>
+      <div id="layerChips" class="chips"></div>
+
+      <h3 style="margin-top:1rem;">Sensation</h3>
+      <div id="symptomChips" class="chips"></div>
+
+      <h3 style="margin-top:1rem;">Duration</h3>
+      <div id="durationChips" class="chips"></div>
+
+      <h3 style="margin-top:1rem;">Intensity</h3>
+      <div id="intensityChips" class="chips"></div>
+
+      <button id="analyze" class="primary" style="margin-top:1.5rem;">See my insight</button>
+
+      <div id="result" class="result" style="display:none;">
+        <h3>Insight</h3>
+        <p id="summary"></p>
+        <p class="small">Educational only. Not medical advice.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
