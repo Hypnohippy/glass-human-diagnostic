@@ -43,7 +43,7 @@ const DURATIONS = [
 
 const INTENSITIES = [1,2,3,4,5,6,7,8,9,10];
 
-// ===== THEMES (stress/regen/association) =====
+// ===== THEMES (with stress/regen/association) =====
 const SYSTEM_THEMES = {
   cardio: {
     title: "Heart/circulation often echoes pressure, grief, or performance demands.",
@@ -164,7 +164,6 @@ function makeChips(containerId, items, onSelect, selectedId){
 
 // turn x/y % into a label
 function classifyRegion(xPct, yPct){
-  // y = height from top
   if (yPct < 18) return "head";
   if (yPct < 26) return "neck";
   if (yPct < 40) {
@@ -181,7 +180,7 @@ function classifyRegion(xPct, yPct){
   return "lower-body";
 }
 
-// make hotspot draggable and update region on drop
+// make hotspot draggable + update region on drop
 function makeHotspotDraggable(hotspot, container){
   let dragging = false;
 
@@ -203,19 +202,19 @@ function makeHotspotDraggable(hotspot, container){
     hotspot.style.top  = topPct + "%";
   };
 
-  const end = (e) => {
+  const end = () => {
     if (!dragging) return;
     dragging = false;
     hotspot.style.transition = "";
 
-    // after drop, work out region
     const rect = container.getBoundingClientRect();
     const btnRect = hotspot.getBoundingClientRect();
-    const x = (btnRect.left + btnRect.width/2) - rect.left;
-    const y = (btnRect.top + btnRect.height/2) - rect.top;
-    const xPct = (x / rect.width) * 100;
-    const yPct = (y / rect.height) * 100;
+    const centerX = (btnRect.left + btnRect.width/2) - rect.left;
+    const centerY = (btnRect.top + btnRect.height/2) - rect.top;
+    const xPct = (centerX / rect.width) * 100;
+    const yPct = (centerY / rect.height) * 100;
     const region = classifyRegion(xPct, yPct);
+
     hotspot.dataset.region = region;
     state.region = region;
     $("selected").textContent = region;
@@ -249,7 +248,8 @@ document.addEventListener("DOMContentLoaded", () => {
   makeChips("layerChips",  LAYERS,  id => state.layer  = id);
   makeChips("symptomChips", SYMPTOMS, id => state.symptom = id);
   makeChips("durationChips", DURATIONS, id => state.duration = id, "weeks");
-  makeChips("intensityChips",
+  makeChips(
+    "intensityChips",
     INTENSITIES.map(n => ({ id: String(n), label: String(n) })),
     id => state.intensity = Number(id),
     "5"
@@ -264,7 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // analyze
+  // analyze → show insight
   $("analyze").addEventListener("click", () => {
     const sys   = state.system || "default";
     const theme = SYSTEM_THEMES[sys] || SYSTEM_THEMES["default"];
@@ -310,23 +310,13 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   });
 
-  // CTA → Root Health
+  // Root Health CTA
   const continueBtn = document.getElementById("continueBtn");
   if (continueBtn) {
     continueBtn.addEventListener("click", () => {
       const saved = localStorage.getItem(STORAGE_KEY) || "{}";
       const encoded = encodeURIComponent(saved);
       window.location.href = `${ROOT_HEALTH_URL}?data=${encoded}`;
-      // analyze logic above …
-
-  // Root Health app link
-  const continueBtn = document.getElementById("continueBtn");
-  if (continueBtn) {
-    continueBtn.addEventListener("click", () => {
-      const saved = localStorage.getItem("rootHealthDiagnostic") || "{}";
-      const encoded = encodeURIComponent(saved);
-      window.location.href = `https://app.roothealth.app?data=${encoded}`;
     });
   }
 });
-
