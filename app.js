@@ -1,5 +1,5 @@
 // config
-const ROOT_HEALTH_URL = "https://app.roothealth.app"; // change later
+const ROOT_HEALTH_URL = "https://app.roothealth.app"; // change later if you want
 const STORAGE_KEY = "rootHealthDiagnostic";
 
 // UI sets
@@ -24,13 +24,16 @@ const DURATIONS = [
 ];
 const INTENSITIES = [1,2,3,4,5,6,7,8,9,10];
 
-// very simple rules demo
+// demo rules – you can expand these
 const RULES = {
   "chest-muscle-pain": {
-    summary: "Chest muscular tension often mirrors breath-holding and emotional pressure.",
+    summary: "Chest muscular tension often mirrors breath-holding and emotional pressure."
   },
   "abdomen-dermis-itch": {
-    summary: "Superficial abdominal irritation can pair with contact/boundary stress.",
+    summary: "Surface irritation around the abdomen can mirror contact/boundary stress or friction."
+  },
+  "right-arm-muscle-pain": {
+    summary: "Right arm muscular pain can map to over-efforting / doing too much with no support."
   },
   "default": {
     summary: "Your body is signalling a stress pattern. Start with breath, hydration, and one honest boundary."
@@ -45,7 +48,9 @@ let state = {
   intensity: 5,
 };
 
-function $(id) { return document.getElementById(id); }
+function $(id) {
+  return document.getElementById(id);
+}
 
 function makeChips(containerId, items, onSelect, selectedId) {
   const el = $(containerId);
@@ -73,19 +78,33 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // chips
   makeChips("layerChips", LAYERS, id => state.layer = id);
   makeChips("symptomChips", SYMPTOMS, id => state.symptom = id);
   makeChips("durationChips", DURATIONS, id => state.duration = id, "weeks");
   makeChips("intensityChips", INTENSITIES.map(n => ({id:String(n), label:String(n)})), id => state.intensity = Number(id), "5");
 
+  // zoom
+  const zoomInput = document.getElementById("zoom");
+  const bodyImage = document.querySelector(".body-image");
+  if (zoomInput && bodyImage) {
+    zoomInput.addEventListener("input", () => {
+      const val = Number(zoomInput.value); // 80–160
+      const scale = val / 100;             // 0.8–1.6
+      bodyImage.style.transform = `scale(${scale})`;
+    });
+  }
+
+  // analyze
   $("analyze").addEventListener("click", () => {
     const key = `${state.region || ""}-${state.layer || ""}-${state.symptom || ""}`;
     const rule = RULES[key] || RULES["default"];
+
     $("summary").textContent =
       rule.summary + ` · Intensity ${state.intensity}/10 · Duration: ${state.duration}.`;
     $("result").style.display = "block";
 
-    // save locally
+    // save to localStorage
     const payload = {
       input: state,
       result: rule,
