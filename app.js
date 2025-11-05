@@ -1,5 +1,6 @@
 // ===== CONFIG =====
-const ROOT_HEALTH_URL = "https://app.roothealth.app"; // change if needed
+const ROOT_HEALTH_URL = "https://www.roothealth.app";
+ // change if needed
 const STORAGE_KEY = "rootHealthDiagnostic";
 
 // ===== DATA =====
