@@ -1,118 +1,159 @@
-// config
-const ROOT_HEALTH_URL = "https://app.roothealth.app"; // change later if needed
+// ===== CONFIG =====
+const ROOT_HEALTH_URL = "https://app.roothealth.app"; // change to your real app if different
 const STORAGE_KEY = "rootHealthDiagnostic";
 
-// bigger set of body systems / organs
+// ===== DATA: SYSTEMS, LAYERS, SYMPTOMS =====
 const SYSTEMS = [
-  { id: "cardio", label: "Heart / Cardio" },
+  { id: "cardio",      label: "Heart / Cardio" },
   { id: "respiratory", label: "Respiratory" },
-  { id: "digestive", label: "Digestive / Bowels" },
-  { id: "liver", label: "Liver / Gallbladder" },
-  { id: "kidneys", label: "Kidneys / Urinary" },
-  { id: "reproductive", label: "Reproductive" },
-  { id: "endocrine", label: "Endocrine" },
-  { id: "excretory", label: "Excretory / Skin" },
-  { id: "msk", label: "Musculoskeletal" },
+  { id: "digestive",   label: "Digestive / Bowels" },
+  { id: "liver",       label: "Liver / Gallbladder" },
+  { id: "kidneys",     label: "Kidneys / Urinary" },
+  { id: "reproductive",label: "Reproductive" },
+  { id: "endocrine",   label: "Endocrine" },
+  { id: "excretory",   label: "Excretory / Skin" },
+  { id: "msk",         label: "Musculoskeletal" },
   { id: "circulatory", label: "Circulatory" }
 ];
 
-// layers as before
 const LAYERS = [
-  { id: "muscle", label: "Muscle" },
-  { id: "nerve", label: "Nerves" },
-  { id: "vessel", label: "Vessels" },
+  { id: "muscle",    label: "Muscle" },
+  { id: "nerve",     label: "Nerves" },
+  { id: "vessel",    label: "Vessels" },
   { id: "epidermis", label: "Skin – Epidermis" },
-  { id: "dermis", label: "Skin – Dermis" },
+  { id: "dermis",    label: "Skin – Dermis" },
 ];
 
-// more sensations
 const SYMPTOMS = [
-  { id: "pain", label: "Pain" },
-  { id: "tight", label: "Tension/Tightness" },
-  { id: "itch", label: "Itch / Rash" },
-  { id: "numb", label: "Tingling/Numbness" },
+  { id: "pain",    label: "Pain" },
+  { id: "tight",   label: "Tension/Tightness" },
+  { id: "itch",    label: "Itch / Rash" },
+  { id: "numb",    label: "Tingling/Numbness" },
   { id: "burning", label: "Burning" },
   { id: "fatigue", label: "Fatigue/Heaviness" },
-  { id: "bloat", label: "Bloating" }
+  { id: "bloat",   label: "Bloating" }
 ];
 
 const DURATIONS = [
-  { id: "days", label: "Days" },
-  { id: "weeks", label: "Weeks" },
+  { id: "days",   label: "Days" },
+  { id: "weeks",  label: "Weeks" },
   { id: "months", label: "Months" },
-  { id: "years", label: "Years" },
+  { id: "years",  label: "Years" },
 ];
 
 const INTENSITIES = [1,2,3,4,5,6,7,8,9,10];
 
-// instead of a tiny RULES object, let's use templates
+// ===== RICH THEMES WITH STRESS/REGEN =====
 const SYSTEM_THEMES = {
-  "cardio": {
-    title: "Heart / circulation often echoes pressure, grief, or performance anxiety.",
-    factors: ["Shallow breathing", "Sedentary time", "Emotional holding in chest"],
-    actions: ["3–5 mins coherent breathing", "Gentle walk", "Connect with a safe person"]
+  cardio: {
+    title: "Heart/circulation often echoes pressure, grief, or performance demands.",
+    stressPhase: "Stress/load phase: chest and heart area can tighten, breathing goes higher, and the body prioritises ‘go’ over ‘process’.",
+    regenPhase: "Regeneration phase: the body wants deeper belly breaths, emotional release, and slower movement so circulation can normalise.",
+    association: "Often shows up in people who hold things in, support everyone else, or feel watched/judged.",
+    factors: [
+      "Shallow or upper-chest breathing",
+      "Sedentary time",
+      "Unexpressed emotion"
+    ],
+    actions: [
+      "3–5 mins coherent breathing (inhale 5s · exhale 5s)",
+      "Gentle outdoor walk",
+      "Name one feeling to a safe person"
+    ]
   },
-  "respiratory": {
-    title: "Respiratory patterns mirror how much space you allow yourself.",
-    factors: ["Mouth breathing", "Indoor air", "Stress peaks"],
-    actions: ["Nasal low-and-slow breathing", "Fresh air break", "Reduce stimulants"]
+  respiratory: {
+    title: "Lungs mirror how much space you allow yourself to take.",
+    stressPhase: "Stress/load phase: breath gets fast and high, ribs stay ‘on’, diaphragm moves less.",
+    regenPhase: "Regeneration phase: slow nasal breathing, longer exhales, softer ribs.",
+    association: "Linked to ‘I couldn’t speak up’ or ‘I had to keep it together’.",
+    factors: ["Mouth breathing", "Indoor/stale air", "Frequent stress spikes"],
+    actions: ["Box breathing 4·4·4·4", "Get fresh air", "Reduce stimulants today"]
   },
-  "digestive": {
-    title: "Digestive signals often appear when you're ‘not digesting’ life input.",
-    factors: ["Eating on the go", "Highly processed foods", "Stress while eating"],
-    actions: ["Screen-free meals", "Chew 10+ times", "5-min post-meal walk"]
+  digestive: {
+    title: "Digestive signals often appear when you're asked to ‘swallow’ too much (food or life).",
+    stressPhase: "Stress/load phase: blood is diverted away from digestion, motility changes, and sensitivity increases.",
+    regenPhase: "Regeneration phase: calm, slow, warm meals in nervous-system safety.",
+    association: "Common with boundary issues or ‘I can’t stomach this situation’.",
+    factors: ["Eating on the go", "Ultra-processed foods", "Working/arguing while eating"],
+    actions: ["Screen-free meals", "Chew 10+ times/bite", "5-min post-meal walk"]
   },
-  "liver": {
-    title: "Liver/gallbladder can show up with irritation or decision fatigue.",
-    factors: ["Late heavy meals", "Alcohol/fats load", "Unmade decisions"],
-    actions: ["Earlier lighter dinner", "Hydrate on waking", "Do 1 pending decision"]
+  liver: {
+    title: "Liver/gallbladder often flags overload, irritation or decision fatigue.",
+    stressPhase: "Stress/load phase: it keeps processing while more load comes in (late meals, alcohol, emotional irritation).",
+    regenPhase: "Regeneration phase: wants lighter evenings, hydration, and emotional de-charge.",
+    association: "Shows up in people who get stuck in frustration or take on others’ stuff.",
+    factors: ["Late heavy dinners", "Alcohol/fat load", "Unfinished decisions"],
+    actions: ["Earlier lighter dinner", "Hydrate on waking", "Park or finish 1 decision"]
   },
-  "kidneys": {
-    title: "Kidney/urinary themes can mirror safety and fluid balance.",
-    factors: ["Low hydration", "High stress", "Holding patterns"],
-    actions: ["Hydrate through day", "2-min relaxation", "Reduce stimulants"]
+  kidneys: {
+    title: "Kidney/urinary areas can mirror safety, fear and fluid balance.",
+    stressPhase: "Stress/load phase: body may hold or dump fluids unpredictably depending on safety signals.",
+    regenPhase: "Regeneration phase: wants steady hydration, warmth, actual support.",
+    association: "Linked to ‘I have to hold it together’ or old fear imprints.",
+    factors: ["Low hydration", "Cold/stressy environments", "Chronic over-responsibility"],
+    actions: ["Sip water through day", "2-min relaxation scan", "Ask for a small piece of support"]
   },
-  "reproductive": {
-    title: "Reproductive area often ties to intimacy, creation, and safety.",
-    factors: ["Pelvic tension", "Hormonal shifts", "Boundary stress"],
-    actions: ["Pelvic floor relaxation", "Warmth to area", "Name one boundary"]
+  reproductive: {
+    title: "Reproductive/pelvic signals tie to intimacy, creation and safety.",
+    stressPhase: "Stress/load phase: pelvic floor over-holds, circulation reduces.",
+    regenPhase: "Regeneration phase: wants softness, warmth, movement, emotional safety.",
+    association: "Can follow boundary breaches or creating without support.",
+    factors: ["Pelvic tension", "Hormonal load", "Relational stress"],
+    actions: ["Pelvic floor relaxation breaths", "Gentle hip mobility", "Name one boundary"]
   },
-  "endocrine": {
-    title: "Endocrine signals can reflect long-term load vs. recovery.",
-    factors: ["Sleep debt", "Blood sugar swings", "Chronic stressors"],
-    actions: ["Earlier bedtime", "Balanced meals", "1 stress relief ritual"]
+  endocrine: {
+    title: "Endocrine signs often mean ‘load > recovery’ for a while.",
+    stressPhase: "Stress/load phase: body keeps you wired to get things done, stealing from rest and hormones.",
+    regenPhase: "Regeneration phase: wants sleep, blood-sugar steadiness and fewer demands.",
+    association: "Common in caregivers, high achievers, or people in long uncertainty.",
+    factors: ["Sleep debt", "Skipping meals", "Chronic stressors"],
+    actions: ["Earlier bedtime", "Balanced meals (protein + fibre)", "Schedule one true off-slot"]
   },
-  "excretory": {
-    title: "Excretory/skin reactions often speak to boundaries & elimination.",
+  excretory: {
+    title: "Skin/excretory flare-ups often speak to boundaries and elimination.",
+    stressPhase: "Stress/load phase: body may push out through the skin while you stay in the same irritating context.",
+    regenPhase: "Regeneration phase: wants calmer products, less irritant input, and clearer boundaries.",
+    association: "Often ‘I’m in contact with too much’ — people, products or emotions.",
     factors: ["Irritants/detergents", "Inflammatory foods", "Heat/sweat friction"],
-    actions: ["Cool rinse", "Gentle moisturiser", "Reinforce 1 boundary today"]
+    actions: ["Cool rinse", "Gentle moisturiser", "Say no once today"]
   },
-  "msk": {
-    title: "Muscles/joints speak in the language of load, posture, and support.",
+  msk: {
+    title: "Muscles/joints tell the story of load, posture and support.",
+    stressPhase: "Stress/load phase: body braces (neck/back/jaw/hips) to hold on.",
+    regenPhase: "Regeneration phase: wants length, breath and actual support from others.",
+    association: "Shows up in people carrying a lot for others or sitting long hours.",
     factors: ["Prolonged sitting", "One-sided load", "Weak glutes/core"],
-    actions: ["Hip flexor stretch", "Glute activation", "Ask for small help"]
+    actions: ["Hip-flexor stretch", "Glute activation", "Ask for small help"]
   },
-  "circulatory": {
-    title: "Circulatory issues can map to movement scarcity & stress tone.",
-    factors: ["Low daily steps", "Tight clothing", "High stress"],
+  circulatory: {
+    title: "Circulation can mirror low movement + high stress tone.",
+    stressPhase: "Stress/load phase: vessels tighten and flow is less smooth.",
+    regenPhase: "Regeneration phase: wants rhythmic movement and down-regulation.",
+    association: "Often in high-brainers who forget about the body.",
+    factors: ["Low daily steps", "Tight clothing", "High stress/coffee"],
     actions: ["5-min walk", "Loosen clothing", "Breathing break"]
   },
-  "default": {
-    title: "Your body is signalling a stress or adaptation pattern.",
-    factors: ["Sleep", "Hydration", "Movement"],
+  default: {
+    title: "Your body is signalling a stress → repair cycle.",
+    stressPhase: "Stress/load phase: your system copes with current demands.",
+    regenPhase: "Regeneration phase: it needs time, calm and good inputs to finish the repair.",
+    association: "Often paired with long to-do lists and low recovery.",
+    factors: ["Poor sleep", "Low hydration", "Low movement"],
     actions: ["3-min breathing", "Glass of water", "Gentle stretch"]
   }
 };
 
+// ===== STATE =====
 let state = {
-  region: null,     // where the dot was
-  system: null,     // body system
+  region: null,    // where user clicked / dragged
+  system: null,    // body system chip
   layer: null,
   symptom: null,
   duration: "weeks",
   intensity: 5,
 };
 
+// ===== HELPERS =====
 function $(id){ return document.getElementById(id); }
 
 function makeChips(containerId, items, onSelect, selectedId){
@@ -129,54 +170,46 @@ function makeChips(containerId, items, onSelect, selectedId){
   };
 }
 
-// make hotspot draggable
+// draggable hotspots
 function makeHotspotDraggable(hotspot, container){
   let dragging = false;
-  let startX = 0, startY = 0;
 
   const start = (e) => {
     dragging = true;
-    const evt = e.touches ? e.touches[0] : e;
-    startX = evt.clientX;
-    startY = evt.clientY;
     hotspot.style.transition = "none";
     e.preventDefault();
   };
-
   const move = (e) => {
     if (!dragging) return;
     const rect = container.getBoundingClientRect();
     const evt = e.touches ? e.touches[0] : e;
     const x = evt.clientX - rect.left;
     const y = evt.clientY - rect.top;
-    // convert to %
     const leftPct = (x / rect.width) * 100;
-    const topPct = (y / rect.height) * 100;
+    const topPct  = (y / rect.height) * 100;
     hotspot.style.left = leftPct + "%";
-    hotspot.style.top = topPct + "%";
+    hotspot.style.top  = topPct + "%";
   };
-
   const end = () => {
     dragging = false;
-    hotspot.style.transition = ""; // restore
+    hotspot.style.transition = "";
   };
 
   hotspot.addEventListener("mousedown", start);
-  hotspot.addEventListener("touchstart", start, {passive:false});
+  hotspot.addEventListener("touchstart", start, { passive: false });
   window.addEventListener("mousemove", move);
-  window.addEventListener("touchmove", move, {passive:false});
+  window.addEventListener("touchmove", move, { passive: false });
   window.addEventListener("mouseup", end);
   window.addEventListener("touchend", end);
 }
 
+// ===== MAIN =====
 document.addEventListener("DOMContentLoaded", () => {
-  // hotspots
-  const bodyImage = document.getElementById("bodyImage");
-  document.querySelectorAll(".hotspot").forEach(h => {
-    // make draggable
-    makeHotspotDraggable(h, bodyImage);
+  const bodyImage = $("bodyImage");
 
-    // select on click (but ignore drag-ish)
+  // hotspots: draggable + selectable
+  document.querySelectorAll(".hotspot").forEach(h => {
+    makeHotspotDraggable(h, bodyImage);
     h.addEventListener("click", () => {
       document.querySelectorAll(".hotspot").forEach(x => x.classList.remove("active"));
       h.classList.add("active");
@@ -187,46 +220,80 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // chips
   makeChips("systemChips", SYSTEMS, id => state.system = id);
-  makeChips("layerChips", LAYERS, id => state.layer = id);
+  makeChips("layerChips",  LAYERS,  id => state.layer  = id);
   makeChips("symptomChips", SYMPTOMS, id => state.symptom = id);
   makeChips("durationChips", DURATIONS, id => state.duration = id, "weeks");
-  makeChips("intensityChips", INTENSITIES.map(n => ({id:String(n), label:String(n)})), id => state.intensity = Number(id), "5");
+  makeChips(
+    "intensityChips",
+    INTENSITIES.map(n => ({ id: String(n), label: String(n) })),
+    id => state.intensity = Number(id),
+    "5"
+  );
 
   // zoom
-  const zoomInput = document.getElementById("zoom");
+  const zoomInput = $("zoom");
   if (zoomInput && bodyImage) {
     zoomInput.addEventListener("input", () => {
-      const scale = Number(zoomInput.value) / 100;
+      const scale = Number(zoomInput.value) / 100; // 0.8–1.6
       bodyImage.style.transform = `scale(${scale})`;
     });
   }
 
-  // analyze
+  // analyze → build insight
   $("analyze").addEventListener("click", () => {
-    const sys = state.system || "default";
+    const sys   = state.system || "default";
     const theme = SYSTEM_THEMES[sys] || SYSTEM_THEMES["default"];
+
     const sensationText = state.symptom ? `Sensation: ${state.symptom}.` : "";
-    const durationText = `Duration: ${state.duration}.`;
+    const durationText  = `Duration: ${state.duration}.`;
     const intensityText = `Intensity ${state.intensity}/10.`;
 
-    $("summary").textContent =
-      `${theme.title} ${sensationText} ${durationText} ${intensityText}`;
+    // build a rich, “oh yeah” style description
+    const summaryText = [
+      theme.title,
+      theme.stressPhase,
+      theme.regenPhase,
+      `Association: ${theme.association}`,
+      sensationText,
+      durationText,
+      intensityText,
+      "Your body isn’t failing — it’s trying to complete this cycle. Let’s help it finish."
+    ].filter(Boolean).join(" ");
 
+    $("summary").textContent = summaryText;
     $("factors").innerHTML = (theme.factors || []).map(f => `<li>${f}</li>`).join("");
     $("actions").innerHTML = (theme.actions || []).map(a => `<li>${a}</li>`).join("");
 
     $("result").style.display = "block";
 
-    // save to localStorage
+    // save for Root Health handoff
     const payload = {
-      input: state,
+      input: { ...state },
       insight: {
+        system: sys,
         title: theme.title,
+        stressPhase: theme.stressPhase,
+        regenPhase: theme.regenPhase,
+        association: theme.association,
         factors: theme.factors,
-        actions: theme.actions
+        actions: theme.actions,
+        symptom: state.symptom,
+        duration: state.duration,
+        intensity: state.intensity,
+        region: state.region
       },
       savedAt: new Date().toISOString()
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   });
+
+  // CTA → continue in RootHealth.app
+  const continueBtn = document.getElementById("continueBtn");
+  if (continueBtn) {
+    continueBtn.addEventListener("click", () => {
+      const saved = localStorage.getItem(STORAGE_KEY) || "{}";
+      const encoded = encodeURIComponent(saved);
+      window.location.href = `${ROOT_HEALTH_URL}?data=${encoded}`;
+    });
+  }
 });
