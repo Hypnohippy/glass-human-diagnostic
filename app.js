@@ -317,6 +317,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const saved = localStorage.getItem(STORAGE_KEY) || "{}";
       const encoded = encodeURIComponent(saved);
       window.location.href = `${ROOT_HEALTH_URL}?data=${encoded}`;
+      // analyze logic above …
+
+  // Root Health app link
+  const continueBtn = document.getElementById("continueBtn");
+  if (continueBtn) {
+    continueBtn.addEventListener("click", () => {
+      const saved = localStorage.getItem("rootHealthDiagnostic") || "{}";
+      const encoded = encodeURIComponent(saved);
+      window.location.href = `https://app.roothealth.app?data=${encoded}`;
     });
   }
 });
+
