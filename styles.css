@@ -158,4 +158,40 @@ body {
   .wrapper { flex-direction: column; }
   .body-panel { flex: none; padding: 0; }
   .panel { flex: none; padding: 1.5rem; }
+  /* ---- Root Health CTA ---- */
+.cta-box {
+  margin-top: 1rem;
+  background: radial-gradient(circle at top, rgba(255,77,77,.25), rgba(0,0,0,0));
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: .6rem;
+  padding: .8rem .9rem 1rem;
+}
+
+.cta-box h4 {
+  margin: 0 0 .4rem;
+  font-size: .9rem;
+}
+
+.cta-box p {
+  margin: 0 0 .6rem;
+  font-size: .75rem;
+  opacity: .7;
+}
+
+.secondary {
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.2);
+  padding: .5rem .8rem;
+  border-radius: .5rem;
+  color: #fff;
+  cursor: pointer;
+  font-size: .75rem;
+  transition: all .3s ease;
+}
+
+.secondary:hover {
+  background: rgba(255,255,255,.25);
+  transform: scale(1.05);
+}
+
 }
