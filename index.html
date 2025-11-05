@@ -9,12 +9,13 @@
 </head>
 <body>
   <div class="wrapper">
+    <!-- LEFT: big anatomy image -->
     <div class="body-panel">
       <div class="body-image">
-        <!-- swap this file name for your nice anatomy image -->
+        <!-- use the image you uploaded -->
         <img src="OIP.jpg" alt="Human anatomy" />
 
-        <!-- clickable hotspots -->
+        <!-- hotspots - adjust top/left to match your image -->
         <button class="hotspot" data-region="chest" style="top:32%;left:48%;"></button>
         <button class="hotspot" data-region="abdomen" style="top:47%;left:49%;"></button>
         <button class="hotspot" data-region="neck" style="top:22%;left:49%;"></button>
@@ -23,9 +24,16 @@
       </div>
     </div>
 
+    <!-- RIGHT: diagnostic panel -->
     <div class="panel">
       <h1>Root Health · Glass Human</h1>
       <p>Select a body area, layer and sensation — no typing.</p>
+
+      <!-- zoom control -->
+      <div class="zoom-row">
+        <label for="zoom">Zoom</label>
+        <input id="zoom" type="range" min="80" max="160" value="100" />
+      </div>
 
       <h2>Selected area: <span id="selected">none</span></h2>
 
