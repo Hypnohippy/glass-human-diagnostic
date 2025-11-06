@@ -1,19 +1,42 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Glass Human Diagnostic</title>
-  <link rel="stylesheet" href="styles.css" />
-  <meta name="description" content="Touch-only BodyMind diagnostic. Question · Discover · Act." />
+  <title>Glass Human Diagnostic · Root Health</title>
+  <meta name="description" content="Touch-only BodyMind diagnostic to explore the root causes behind body sensations and stress patterns. Question · Discover · Act." />
+  <meta name="author" content="Root Health" />
+
+  <!-- Absolute asset paths so /glass works under roothealth.app -->
+  <link rel="stylesheet" href="https://glass-human-diagnostic.vercel.app/styles.css" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="https://glass-human-diagnostic.vercel.app/favicon.png" />
+
+  <!-- Open Graph / social sharing -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Glass Human Diagnostic · Root Health" />
+  <meta property="og:description" content="Select or drag a point on the body to reveal possible stress, organ and emotional patterns. Touch-only BodyMind exploration — Question · Discover · Act." />
+  <meta property="og:url" content="https://roothealth.app/glass" />
+  <meta property="og:image" content="https://glass-human-diagnostic.vercel.app/Glassbody.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Glass Human Diagnostic · Root Health" />
+  <meta name="twitter:description" content="Explore the root cause behind what your body is telling you. Touch-only diagnostic from Root Health." />
+  <meta name="twitter:image" content="https://glass-human-diagnostic.vercel.app/Glassbody.png" />
+
+  <!-- Theme color for mobile -->
+  <meta name="theme-color" content="#0d1321" />
 </head>
+
 <body>
   <div class="wrapper">
     <!-- LEFT: big anatomy image -->
     <div class="body-panel">
       <div class="body-image glow" id="bodyImage">
         <!-- your current image (torso to knees) -->
-        <img src="Glassbody.png" alt="Glass human anatomy" />
+        <img src="https://glass-human-diagnostic.vercel.app/Glassbody.png" alt="Glass human anatomy" />
 
         <!-- start with more hotspots; you can drag them -->
         <button class="hotspot" data-region="head" style="top:15%;left:50%;"></button>
@@ -73,6 +96,6 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="https://glass-human-diagnostic.vercel.app/app.js"></script>
 </body>
 </html>
