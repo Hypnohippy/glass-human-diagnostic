@@ -14,7 +14,6 @@
       :root {
         color-scheme: dark;
         --bg: #020617;
-        --bg-soft: #020617;
         --panel: rgba(15, 23, 42, 0.96);
         --panel-soft: rgba(15, 23, 42, 0.9);
         --border: rgba(148, 163, 184, 0.5);
@@ -340,6 +339,40 @@
         margin: 0.15rem 0;
       }
 
+      .cta-btn {
+        margin-top: 0.4rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.65rem 1rem;
+        border-radius: 999px;
+        border: none;
+        background: linear-gradient(to right, #22c55e, #0ea5e9);
+        color: #020617;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 14px 35px rgba(16, 185, 129, 0.4);
+        transition: transform 0.08s ease, box-shadow 0.08s ease;
+      }
+
+      .cta-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 18px 40px rgba(16, 185, 129, 0.55);
+      }
+
+      .cta-btn .icon {
+        font-size: 1rem;
+      }
+
+      .cta-caption {
+        margin: 0.5rem 0 0;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+
       .rh-footer {
         margin-top: 0.5rem;
         text-align: center;
@@ -427,8 +460,7 @@
               <h3>Refine this area</h3>
               <p id="detail-hint" class="detail-hint">
                 Click on the glass body, then use these options to remove what
-                doesn&apos;t fit until only the most accurate structures
-                remain.
+                doesn&apos;t fit until only the most accurate structures remain.
               </p>
               <div id="detail-options" class="detail-options"></div>
             </div>
@@ -447,6 +479,27 @@
               highlight detailed themes (for example: IBS-type gut load, joint
               strain, stress-driven tension, or heart/chest workload).
             </div>
+          </section>
+
+          <section class="card">
+            <h2>Move into the Root Health app</h2>
+            <p class="card-sub">
+              Once you&apos;ve mapped where the load is, you can carry this into
+              the full Root Health app to start building assessments, routines
+              and coaching around it.
+            </p>
+
+            <a href="https://roothealth.app" class="cta-btn">
+              <span>Continue to Root Health app</span>
+              <span class="icon">→</span>
+            </a>
+
+            <p class="cta-caption">
+              Inside the app you&apos;ll have <strong>8 free credits</strong>.
+              We recommend a full assessment, meeting your coach, and starting a
+              simple routine based on the areas you&apos;ve just highlighted
+              here.
+            </p>
           </section>
         </aside>
       </main>
