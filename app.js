@@ -14,7 +14,7 @@ const markers = [];
 let activeMarker = null;
 
 // 1) Region classifier: from click → broad region + side
-
+// Adjusted so heart clicks fall into CHEST, not neck/shoulders.
 function classifyRegion(xPercent, yPercent) {
   let side;
   if (xPercent < 0.33) side = "left";
@@ -25,12 +25,15 @@ function classifyRegion(xPercent, yPercent) {
   let regionLabel;
 
   if (yPercent < 0.16) {
+    // Very top of the body
     regionId = "head";
     regionLabel = "Head / brain / face";
-  } else if (yPercent < 0.28) {
+  } else if (yPercent < 0.25) {
+    // Smaller neck/shoulder band
     regionId = "neck_shoulders";
     regionLabel = "Neck & shoulders";
-  } else if (yPercent < 0.46) {
+  } else if (yPercent < 0.48) {
+    // Bigger chest band – heart taps around ~0.28 now land here
     regionId = "chest";
     regionLabel = "Chest / upper ribs";
   } else if (yPercent < 0.6) {
@@ -465,7 +468,18 @@ function renderSummary() {
     });
   }
 
-  if (hasAnyTag("ibs", "colon", "gut", "digestion", "stomach", "liver", "gallbladder", "pancreas")) {
+  if (
+    hasAnyTag(
+      "ibs",
+      "colon",
+      "gut",
+      "digestion",
+      "stomach",
+      "liver",
+      "gallbladder",
+      "pancreas"
+    )
+  ) {
     themes.push({
       title: "Gut, digestion and IBS-type load",
       text:
@@ -473,7 +487,9 @@ function renderSummary() {
     });
   }
 
-  if (hasAnyTag("joints", "knees", "ankles", "hips", "feet", "ribs", "bones")) {
+  if (
+    hasAnyTag("joints", "knees", "ankles", "hips", "feet", "ribs", "bones")
+  ) {
     themes.push({
       title: "Joints, impact and long-term load",
       text:
