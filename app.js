@@ -1,68 +1,281 @@
-// Basic multi-dot glass diagnostic for Root Health
+// Multi-dot glass diagnostic with detailed refinement
+// NOTE: Lifestyle / load mapping only, not medical advice.
 
 const glassImage = document.getElementById("glass-image");
 const markerLayer = document.getElementById("marker-layer");
 const areasList = document.getElementById("areas-list");
 const summaryBox = document.getElementById("summary-text");
 const clearBtn = document.getElementById("clear-btn");
+const detailPanel = document.getElementById("detail-panel");
+const detailOptionsEl = document.getElementById("detail-options");
+const detailHintEl = document.getElementById("detail-hint");
 
 const markers = [];
+let activeMarker = null;
 
-// Map coordinates to a region label + theme tags
-function describeRegion(xPercent, yPercent) {
-  let side = "";
-  if (xPercent < 0.35) side = "left ";
-  else if (xPercent > 0.65) side = "right ";
-  else side = "central ";
+// 1) Region classifier: from click → broad region + side
 
-  let zone;
-  let tags = [];
+function classifyRegion(xPercent, yPercent) {
+  let side;
+  if (xPercent < 0.33) side = "left";
+  else if (xPercent > 0.67) side = "right";
+  else side = "central";
 
-  if (yPercent < 0.18) {
-    zone = "head / mind";
-    side = ""; // symmetrical
-    tags.push("mind", "stress");
-  } else if (yPercent < 0.32) {
-    zone = "neck & shoulders";
-    tags.push("stress", "tension");
-  } else if (yPercent < 0.45) {
-    zone = "chest / upper back";
-    tags.push("breathing", "posture");
-  } else if (yPercent < 0.58) {
-    zone = "abdomen / lower back";
-    tags.push("gut", "core", "lower-back");
-  } else if (yPercent < 0.7) {
-    zone = "hips & thighs";
-    tags.push("hips", "mobility");
+  let regionId;
+  let regionLabel;
+
+  if (yPercent < 0.16) {
+    regionId = "head";
+    regionLabel = "Head / brain / face";
+  } else if (yPercent < 0.28) {
+    regionId = "neck_shoulders";
+    regionLabel = "Neck & shoulders";
+  } else if (yPercent < 0.46) {
+    regionId = "chest";
+    regionLabel = "Chest / upper ribs";
+  } else if (yPercent < 0.6) {
+    regionId = "upper_abdomen";
+    regionLabel = "Upper abdomen";
+  } else if (yPercent < 0.72) {
+    regionId = "lower_abdomen_pelvis";
+    regionLabel = "Lower abdomen / pelvis";
   } else if (yPercent < 0.82) {
-    zone = "knees";
-    tags.push("joints", "knees");
+    regionId = "knees";
+    regionLabel = "Knees";
   } else {
-    zone = "ankles / feet";
-    tags.push("joints", "feet");
+    regionId = "lower_legs_feet";
+    regionLabel = "Lower legs / ankles / feet";
   }
 
-  const label = `${side}${zone}`.trim();
-  return { label, tags };
+  return { regionId, regionLabel, side };
 }
 
+// 2) Options for a given region (the elimination list)
+
+function getOptionsForRegion(regionId, side) {
+  const sideWord =
+    side === "left" ? "Left " : side === "right" ? "Right " : "Either ";
+
+  switch (regionId) {
+    case "head":
+      return [
+        {
+          id: "headache_migraine",
+          label: "Headache / migraine pain",
+          tags: ["mind", "tension", "headache"],
+        },
+        {
+          id: "jaw_tension",
+          label: "Jaw / clenching / TMJ",
+          tags: ["jaw", "tension", "stress"],
+        },
+        {
+          id: "sinus_congestion",
+          label: "Sinuses / facial pressure",
+          tags: ["sinus", "inflammation"],
+        },
+        {
+          id: "brain_fog",
+          label: "Brain fog / overthinking",
+          tags: ["mind", "overthinking", "fatigue"],
+        },
+      ];
+
+    case "neck_shoulders":
+      return [
+        {
+          id: "neck_muscles",
+          label: "Neck muscles / tightness",
+          tags: ["tension", "posture", "stress"],
+        },
+        {
+          id: "upper_traps",
+          label: "Top of shoulders / upper traps",
+          tags: ["tension", "load", "stress"],
+        },
+        {
+          id: "throat_area",
+          label: "Front of neck / throat area",
+          tags: ["throat", "stress"],
+        },
+        {
+          id: "collarbone",
+          label: "Collarbone / upper chest edge",
+          tags: ["posture", "bones"],
+        },
+      ];
+
+    case "chest":
+      return [
+        {
+          id: "heart_centre",
+          label: "Heart area / centre of chest",
+          tags: ["heart", "cardio", "chest"],
+        },
+        {
+          id: "lung_side",
+          label: `${sideWord}lung / side of chest`,
+          tags: ["lungs", "respiratory", "chest"],
+        },
+        {
+          id: "breast_tissue",
+          label: `${sideWord}chest / breast tissue`,
+          tags: ["breast", "chest"],
+        },
+        {
+          id: "sternum",
+          label: "Sternum / front of rib cage",
+          tags: ["bones", "chest"],
+        },
+        {
+          id: "ribs_front",
+          label: "Ribs (front)",
+          tags: ["ribs", "chest"],
+        },
+        {
+          id: "shoulder_blades",
+          label: `${sideWord}shoulder blade / upper back`,
+          tags: ["upper_back", "posture", "tension"],
+        },
+      ];
+
+    case "upper_abdomen":
+      return [
+        {
+          id: "stomach_upper",
+          label: "Stomach / upper abdomen (acid, nausea, reflux)",
+          tags: ["stomach", "gut", "digestion"],
+        },
+        {
+          id: "liver_gallbladder",
+          label: `${side === "right" ? "Right " : ""}liver / gallbladder area`,
+          tags: ["liver", "gallbladder", "digestion"],
+        },
+        {
+          id: "pancreas_central",
+          label: "Pancreas area / central upper abdomen",
+          tags: ["pancreas", "metabolism", "digestion"],
+        },
+        {
+          id: "diaphragm_solar",
+          label: "Diaphragm / solar plexus tightness",
+          tags: ["breathing", "stress", "diaphragm"],
+        },
+      ];
+
+    case "lower_abdomen_pelvis":
+      return [
+        {
+          id: "colon_ibs",
+          label: "Colon / bowels (IBS-type cramps, urgency or bloating)",
+          tags: ["gut", "colon", "ibs", "digestion"],
+        },
+        {
+          id: "general_gut",
+          label: "General gut / bloating / cramping",
+          tags: ["gut", "digestion"],
+        },
+        {
+          id: "bladder",
+          label: "Bladder / urinary discomfort",
+          tags: ["bladder", "pelvis"],
+        },
+        {
+          id: "reproductive_organs",
+          label: `${sideWord}reproductive organs (period pain, pelvic load)`,
+          tags: ["reproductive", "pelvis", "hormones"],
+        },
+      ];
+
+    case "knees":
+      return [
+        {
+          id: "kneecap_front",
+          label: `${sideWord}front of knee / kneecap`,
+          tags: ["joints", "knees", "impact"],
+        },
+        {
+          id: "knee_inside",
+          label: `${sideWord}inside of knee joint`,
+          tags: ["joints", "knees", "ligaments"],
+        },
+        {
+          id: "knee_outside",
+          label: `${sideWord}outside of knee joint`,
+          tags: ["joints", "knees", "tendons"],
+        },
+        {
+          id: "knee_back",
+          label: `${sideWord}back of knee`,
+          tags: ["joints", "knees"],
+        },
+      ];
+
+    case "lower_legs_feet":
+      return [
+        {
+          id: "calves",
+          label: `${sideWord}calf muscles`,
+          tags: ["muscles", "load", "legs"],
+        },
+        {
+          id: "shins",
+          label: `${sideWord}shins / front of legs`,
+          tags: ["muscles", "impact", "legs"],
+        },
+        {
+          id: "ankles",
+          label: `${sideWord}ankle joint`,
+          tags: ["joints", "ankles", "balance"],
+        },
+        {
+          id: "feet_arches",
+          label: `${sideWord}foot arches / plantar surface`,
+          tags: ["feet", "support", "gait"],
+        },
+      ];
+
+    default:
+      return [
+        {
+          id: "general_area",
+          label: "General load in this area",
+          tags: ["mixed"],
+        },
+      ];
+  }
+}
+
+// 3) Marker management
+
 function addMarker(xPercent, yPercent) {
-  const { label, tags } = describeRegion(xPercent, yPercent);
+  const { regionId, regionLabel, side } = classifyRegion(xPercent, yPercent);
+  const options = getOptionsForRegion(regionId, side);
 
   const markerEl = document.createElement("div");
   markerEl.className = "marker";
   markerEl.style.left = `${xPercent * 100}%`;
   markerEl.style.top = `${yPercent * 100}%`;
 
-  const markerObj = { xPercent, yPercent, label, tags, el: markerEl };
+  const markerObj = {
+    xPercent,
+    yPercent,
+    regionId,
+    regionLabel,
+    side,
+    options, // all possible structures
+    selectedOptionIds: options.map((o) => o.id), // start with ALL selected -> user eliminates
+    el: markerEl,
+  };
 
   markerEl.addEventListener("click", (e) => {
     e.stopPropagation();
-    removeMarker(markerObj);
+    setActiveMarker(markerObj);
   });
 
   markerLayer.appendChild(markerEl);
   markers.push(markerObj);
+  setActiveMarker(markerObj); // new marker becomes active
   renderMarkers();
 }
 
@@ -74,6 +287,11 @@ function removeMarker(markerObj) {
   if (markerObj.el && markerObj.el.parentNode) {
     markerObj.el.parentNode.removeChild(markerObj.el);
   }
+
+  if (activeMarker === markerObj) {
+    activeMarker = markers.length ? markers[markers.length - 1] : null;
+  }
+
   renderMarkers();
 }
 
@@ -82,12 +300,21 @@ function clearMarkers() {
   while (markerLayer.firstChild) {
     markerLayer.removeChild(markerLayer.firstChild);
   }
+  activeMarker = null;
   renderMarkers();
 }
 
+function setActiveMarker(markerObj) {
+  activeMarker = markerObj;
+  renderMarkers();
+}
+
+// 4) Rendering: list, detail options, summary
+
 function renderMarkers() {
-  // List
+  // Selected areas list
   areasList.innerHTML = "";
+
   markers.forEach((m, idx) => {
     const li = document.createElement("li");
     li.className = "area-item";
@@ -95,11 +322,21 @@ function renderMarkers() {
     const info = document.createElement("div");
     const title = document.createElement("div");
     title.className = "area-label";
-    title.textContent = `${idx + 1}. ${m.label}`;
+
+    const selectedLabels = m.options
+      .filter((o) => m.selectedOptionIds.includes(o.id))
+      .map((o) => o.label);
+
+    const labelText =
+      selectedLabels.length > 0
+        ? selectedLabels.join(", ")
+        : m.regionLabel + " (no specific structures selected)";
+
+    title.textContent = `${idx + 1}. ${labelText}`;
 
     const meta = document.createElement("div");
     meta.className = "area-meta";
-    meta.textContent = `X: ${(m.xPercent * 100).toFixed(
+    meta.textContent = `${m.regionLabel} · X: ${(m.xPercent * 100).toFixed(
       0
     )}%, Y: ${(m.yPercent * 100).toFixed(0)}%`;
 
@@ -110,106 +347,196 @@ function renderMarkers() {
     removeBtn.className = "area-remove";
     removeBtn.type = "button";
     removeBtn.textContent = "×";
-    removeBtn.title = "Remove";
+    removeBtn.title = "Remove this dot";
     removeBtn.addEventListener("click", () => removeMarker(m));
 
     li.appendChild(info);
     li.appendChild(removeBtn);
+
+    li.addEventListener("click", () => {
+      setActiveMarker(m);
+    });
+
     areasList.appendChild(li);
   });
 
-  // Summary
-  if (markers.length === 0) {
-    summaryBox.innerHTML =
-      "Tap on the glass human to begin. As you add dots, we&apos;ll highlight likely themes (joints, stress, gut, sleep, etc.).";
+  renderDetailPanel();
+  renderSummary();
+}
+
+// Detail panel: options for active marker
+
+function renderDetailPanel() {
+  if (!activeMarker) {
+    detailOptionsEl.innerHTML = "";
+    detailHintEl.textContent =
+      "Click on the glass body to add a dot. Then remove the structures that don&apos;t fit until only the most accurate ones remain.";
     return;
   }
 
-  const themeCounts = {
-    mind: 0,
-    stress: 0,
-    tension: 0,
-    joints: 0,
-    knees: 0,
-    hips: 0,
-    "lower-back": 0,
-    gut: 0,
-    core: 0,
-    breathing: 0,
-    posture: 0,
-    feet: 0,
-  };
+  detailOptionsEl.innerHTML = "";
+  detailHintEl.innerHTML =
+    "You&apos;re refining a dot in the area: <strong>" +
+    activeMarker.regionLabel +
+    "</strong>. All likely structures are selected. Click to turn off what doesn&apos;t fit. At least one should remain.";
+
+  activeMarker.options.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "detail-option";
+    btn.textContent = opt.label;
+
+    if (activeMarker.selectedOptionIds.includes(opt.id)) {
+      btn.classList.add("active");
+    }
+
+    btn.addEventListener("click", () => {
+      toggleOptionForActiveMarker(opt.id);
+    });
+
+    detailOptionsEl.appendChild(btn);
+  });
+}
+
+function toggleOptionForActiveMarker(optionId) {
+  if (!activeMarker) return;
+
+  const current = new Set(activeMarker.selectedOptionIds);
+
+  if (current.has(optionId)) {
+    // Don’t allow zero: must keep at least one selected
+    if (current.size === 1) {
+      return;
+    }
+    current.delete(optionId);
+  } else {
+    current.add(optionId);
+  }
+
+  activeMarker.selectedOptionIds = Array.from(current);
+  renderMarkers();
+}
+
+// Summary: root-cause style themes
+
+function renderSummary() {
+  if (markers.length === 0) {
+    summaryBox.innerHTML =
+      "Tap on the glass human to begin. As you refine each dot, we&apos;ll highlight detailed themes (for example: IBS-type gut load, joint strain, stress-driven tension, or heart/chest workload).";
+    return;
+  }
+
+  // Collect all chosen structures
+  const chosenStructures = [];
+  const tagCounts = {};
 
   markers.forEach((m) => {
-    m.tags.forEach((t) => {
-      if (themeCounts[t] !== undefined) {
-        themeCounts[t] += 1;
-      }
-    });
+    m.options
+      .filter((o) => m.selectedOptionIds.includes(o.id))
+      .forEach((opt) => {
+        chosenStructures.push(opt.label);
+        opt.tags.forEach((t) => {
+          if (!tagCounts[t]) tagCounts[t] = 0;
+          tagCounts[t] += 1;
+        });
+      });
   });
+
+  const uniqueStructures = Array.from(new Set(chosenStructures));
+
+  // Helper to check tags
+  const hasAnyTag = (...tags) => tags.some((t) => tagCounts[t]);
 
   const themes = [];
 
-  if (themeCounts.mind || themeCounts.stress) {
+  if (hasAnyTag("heart", "cardio")) {
     themes.push({
-      title: "Mind, stress and mental load",
+      title: "Heart and central chest workload",
       text:
-        "Dots around the head, neck and shoulders often point to stress, overthinking or a nervous system that is working overtime.",
+        "You&apos;ve highlighted the heart / central chest area. Root Health can&apos;t replace medical assessment, but it can help you work on the lifestyle load around your heart: stress levels, sleep, movement, breathing patterns and long-term pacing. New, severe or worsening chest symptoms should always be checked by a doctor urgently.",
     });
   }
 
-  if (themeCounts.joints || themeCounts.knees || themeCounts.hips) {
+  if (hasAnyTag("lungs", "respiratory", "breathing", "diaphragm")) {
     themes.push({
-      title: "Joints, alignment and load",
+      title: "Breathing mechanics and respiratory load",
       text:
-        "Knees, hips and feet carry impact and load. Repeated dots here can point to joint strain, pacing issues or support/muscle imbalances.",
+        "Dots around the lungs, ribs or diaphragm suggest that breathing mechanics, posture, fitness level or stress may be creating extra load. Inside Root Health you can use breathing tools, pacing strategies and gradual movement plans to support this system.",
     });
   }
 
-  if (themeCounts["lower-back"] || themeCounts.core) {
+  if (hasAnyTag("ibs", "colon", "gut", "digestion", "stomach", "liver", "gallbladder", "pancreas")) {
     themes.push({
-      title: "Lower back and core support",
+      title: "Gut, digestion and IBS-type load",
       text:
-        "Lower back and abdominal areas are often linked to posture, core support, sitting time and stress held in the midsection.",
+        "Focus on the gut, bowels and upper abdomen often points to a mix of food triggers, stress, sleep, pacing and nervous system sensitivity. Root Health can help you track patterns (IBS flares, bloating, bowel changes), experiment with routines and support the gut–brain axis over time.",
     });
   }
 
-  if (themeCounts.gut) {
+  if (hasAnyTag("joints", "knees", "ankles", "hips", "feet", "ribs", "bones")) {
     themes.push({
-      title: "Gut and digestion",
+      title: "Joints, impact and long-term load",
       text:
-        "Dots around the gut may relate to digestion, inflammation, food triggers or the way stress lands in the body.",
+        "Joints and supporting structures (knees, ankles, hips, ribs) carry mechanical load. Repeated dots here suggest that load management, strength, movement patterns and rest windows all matter. Root Health can help you design pacing plans, movement experiments and recovery routines.",
     });
   }
 
-  if (themeCounts.feet) {
+  if (hasAnyTag("tension", "upper_back", "posture", "jaw")) {
     themes.push({
-      title: "Feet and foundations",
+      title: "Muscle tension, posture and stored stress",
       text:
-        "Feet and ankles affect balance, walking patterns and how load travels up through the whole chain.",
+        "Neck, shoulders, jaw and upper back markers point to how you hold stress and load in the body. With Root Health you can explore micro-breaks, relaxation tools, posture tweaks and routines that gradually reduce this background tension.",
+    });
+  }
+
+  if (hasAnyTag("mind", "overthinking", "headache", "fatigue")) {
+    themes.push({
+      title: "Mind, overthinking and nervous system load",
+      text:
+        "Markers linked to brain fog, overthinking or headaches suggest that your nervous system and mind are carrying a lot. Root Health can support you with stress coaches, wind-down routines, thought-unloading prompts and tracking what genuinely helps you settle over weeks and months.",
+    });
+  }
+
+  if (hasAnyTag("reproductive", "hormones", "pelvis")) {
+    themes.push({
+      title: "Pelvic and hormonal load",
+      text:
+        "Pelvic and reproductive markers often relate to hormonal cycles, chronic pelvic pain, or how stress and posture interact with these systems. Root Health can help you map symptoms against sleep, stress, movement and cycles, then build routines that respect those rhythms.",
+    });
+  }
+
+  if (hasAnyTag("feet", "support", "gait", "legs", "impact")) {
+    themes.push({
+      title: "Foundations, movement patterns and impact",
+      text:
+        "Feet, ankles and lower legs act as your foundations. Dots here can signal that footwear, surface, movement style and general conditioning are part of the picture. Root Health can support experiments around pacing, footwear, walking patterns and recovery.",
     });
   }
 
   if (themes.length === 0) {
     themes.push({
-      title: "Mixed pattern",
+      title: "Mixed pattern of load",
       text:
-        "You&apos;ve highlighted a spread of areas. Think about what most limits your day-to-day life &mdash; that&apos;s usually the best place to start working with Root Health.",
+        "You&apos;ve highlighted a mix of structures. That&apos;s common. Root Health helps you pick a sensible starting point, then layer changes over time instead of trying to fix everything at once.",
     });
   }
 
-  let html = "<p>From the dots you&apos;ve placed we can see:</p><ul>";
+  let html = "";
+  html += `<p>You&apos;ve identified these specific structures:</p>`;
+  html += `<p><strong>${uniqueStructures.join(", ")}</strong></p>`;
+  html += "<ul>";
   themes.forEach((t) => {
     html += `<li><strong>${t.title}:</strong> ${t.text}</li>`;
   });
   html += "</ul>";
   html +=
-    "<p>This is a starting point, not a diagnosis. Inside Root Health you can turn these themes into coaching, routines and long-term tracking.</p>";
+    "<p>This map is a starting point, not a diagnosis. Inside Root Health, you can turn these themes into assessments, coaching sessions, routines and journalling so you can track real change over time.</p>";
 
   summaryBox.innerHTML = html;
 }
 
-// Click on glass image to add marker
+// 5) Event wiring
+
 glassImage.addEventListener("click", (event) => {
   const rect = glassImage.getBoundingClientRect();
   const x = event.clientX - rect.left;
@@ -221,7 +548,6 @@ glassImage.addEventListener("click", (event) => {
   addMarker(xPercent, yPercent);
 });
 
-// Clear all button
 clearBtn.addEventListener("click", () => {
   clearMarkers();
 });
