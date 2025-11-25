@@ -1,101 +1,544 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Glass Human Diagnostic · Root Health</title>
-  <meta name="description" content="Touch-only BodyMind diagnostic to explore the root causes behind body sensations and stress patterns. Question · Discover · Act." />
-  <meta name="author" content="Root Health" />
+  <head>
+    <meta charset="UTF-8" />
+    <title>Root Health – Glass Diagnostic</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Absolute asset paths so /glass works under roothealth.app -->
-  <link rel="stylesheet" href="https://glass-human-diagnostic.vercel.app/styles.css" />
+    <!-- Use your existing styles if you want -->
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/improved-ui.css" />
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="https://glass-human-diagnostic.vercel.app/favicon.png" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: radial-gradient(circle at top, #041016 0, #010508 40%, #000 100%);
+        color: #f9fafb;
+        display: flex;
+        flex-direction: column;
+      }
 
-  <!-- Open Graph / social sharing -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Glass Human Diagnostic · Root Health" />
-  <meta property="og:description" content="Select or drag a point on the body to reveal possible stress, organ and emotional patterns. Touch-only BodyMind exploration — Question · Discover · Act." />
-  <meta property="og:url" content="https://roothealth.app/glass" />
-  <meta property="og:image" content="https://glass-human-diagnostic.vercel.app/Glassbody.png" />
+      .rh-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Glass Human Diagnostic · Root Health" />
-  <meta name="twitter:description" content="Explore the root cause behind what your body is telling you. Touch-only diagnostic from Root Health." />
-  <meta name="twitter:image" content="https://glass-human-diagnostic.vercel.app/Glassbody.png" />
+      .rh-header {
+        text-align: center;
+      }
 
-  <!-- Theme color for mobile -->
-  <meta name="theme-color" content="#0d1321" />
-</head>
+      .rh-header h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.25rem;
+      }
 
-<body>
-  <div class="wrapper">
-    <!-- LEFT: big anatomy image -->
-    <div class="body-panel">
-      <div class="body-image glow" id="bodyImage">
-        <!-- your current image (torso to knees) -->
-        <img src="https://glass-human-diagnostic.vercel.app/Glassbody.png" alt="Glass human anatomy" />
+      .rh-header p {
+        opacity: 0.8;
+        max-width: 620px;
+        margin: 0.25rem auto 0;
+        font-size: 0.95rem;
+      }
 
-        <!-- start with more hotspots; you can drag them -->
-        <button class="hotspot" data-region="head" style="top:15%;left:50%;"></button>
-        <button class="hotspot" data-region="chest" style="top:30%;left:50%;"></button>
-        <button class="hotspot" data-region="heart" style="top:34%;left:47%;"></button>
-        <button class="hotspot" data-region="abdomen" style="top:47%;left:50%;"></button>
-        <button class="hotspot" data-region="pelvis" style="top:58%;left:50%;"></button>
-        <button class="hotspot" data-region="left-abdomen" style="top:47%;left:42%;"></button>
-        <button class="hotspot" data-region="right-abdomen" style="top:47%;left:58%;"></button>
-      </div>
+      .rh-step-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.7rem;
+        border-radius: 999px;
+        background: rgba(16, 185, 129, 0.14);
+        color: #6ee7b7;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .rh-main {
+        display: grid;
+        grid-template-columns: minmax(0, 3fr);
+        gap: 1.5rem;
+      }
+
+      .rh-panel {
+        background: rgba(15, 23, 42, 0.85);
+        border-radius: 1rem;
+        border: 1px solid rgba(45, 212, 191, 0.18);
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7);
+        overflow: hidden;
+      }
+
+      .rh-panel-header {
+        padding: 0.85rem 1.1rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .rh-panel-header h2 {
+        font-size: 0.95rem;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.85;
+      }
+
+      .rh-panel-header span {
+        font-size: 0.8rem;
+        opacity: 0.7;
+      }
+
+      .rh-iframe-wrap {
+        position: relative;
+        padding: 0.75rem;
+        padding-bottom: 0.75rem;
+        background: radial-gradient(
+            circle at top,
+            rgba(16, 185, 129, 0.2),
+            transparent 55%
+          ),
+          radial-gradient(circle at bottom, rgba(56, 189, 248, 0.2), #020617 65%);
+      }
+
+      .rh-iframe {
+        width: 100%;
+        height: min(600px, 70vh);
+        border-radius: 0.9rem;
+        border: 1px solid rgba(148, 163, 184, 0.45);
+        background: #020617;
+      }
+
+      .rh-iframe iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: inherit;
+      }
+
+      .rh-note {
+        font-size: 0.8rem;
+        opacity: 0.75;
+        margin-top: 0.4rem;
+        text-align: center;
+      }
+
+      .rh-side {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .rh-card {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: 1rem;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 1rem;
+      }
+
+      .rh-card h3 {
+        font-size: 0.95rem;
+        margin: 0 0 0.5rem;
+      }
+
+      .rh-card p {
+        font-size: 0.85rem;
+        opacity: 0.85;
+        margin: 0.25rem 0;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-top: 0.5rem;
+      }
+
+      .pill {
+        font-size: 0.8rem;
+        padding: 0.38rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        background: rgba(15, 23, 42, 0.95);
+        cursor: pointer;
+        transition: background 0.15s ease, border-color 0.15s ease,
+          transform 0.08s ease;
+        user-select: none;
+      }
+
+      .pill.active {
+        background: linear-gradient(to right, #22c55e, #0ea5e9);
+        color: #020617;
+        border-color: transparent;
+        transform: translateY(-1px);
+      }
+
+      .pill span {
+        opacity: 0.9;
+      }
+
+      .summary-box {
+        margin-top: 0.7rem;
+        padding: 0.75rem 0.8rem;
+        border-radius: 0.7rem;
+        background: rgba(15, 23, 42, 0.95);
+        border: 1px solid rgba(45, 212, 191, 0.35);
+        font-size: 0.85rem;
+        line-height: 1.4;
+        max-height: 220px;
+        overflow-y: auto;
+      }
+
+      .summary-box h4 {
+        margin: 0 0 0.4rem;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.9;
+      }
+
+      .summary-box ul {
+        margin: 0.3rem 0 0;
+        padding-left: 1.2rem;
+      }
+
+      .summary-box li {
+        margin: 0.15rem 0;
+      }
+
+      .cta-area {
+        margin-top: 0.6rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .cta-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.7rem 1rem;
+        border-radius: 999px;
+        border: none;
+        background: linear-gradient(to right, #22c55e, #0ea5e9);
+        color: #020617;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 14px 35px rgba(16, 185, 129, 0.4);
+        transition: transform 0.08s ease, box-shadow 0.08s ease;
+      }
+
+      .cta-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 18px 40px rgba(16, 185, 129, 0.55);
+      }
+
+      .cta-btn span.icon {
+        font-size: 1rem;
+      }
+
+      .cta-note {
+        font-size: 0.78rem;
+        opacity: 0.8;
+      }
+
+      .rh-footer {
+        text-align: center;
+        font-size: 0.75rem;
+        opacity: 0.6;
+        padding: 0.5rem 1rem 1rem;
+      }
+
+      @media (min-width: 900px) {
+        .rh-main {
+          grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+          align-items: start;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .rh-iframe-wrap {
+          padding: 0.5rem;
+        }
+
+        .rh-iframe {
+          height: 420px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="rh-container">
+      <header class="rh-header">
+        <div class="rh-step-tag">
+          <span>Step 1 of 2</span>
+          <span>Glass Human Diagnostic</span>
+        </div>
+        <h1>Map what your body and mind are asking for</h1>
+        <p>
+          Use the Glass Human to highlight key areas &ndash; joints, muscles,
+          gut, and mind. Then we&apos;ll guide you into Root Health with a
+          personalised starting plan.
+        </p>
+      </header>
+
+      <main class="rh-main">
+        <!-- LEFT: Glass iframe -->
+        <section class="rh-panel">
+          <div class="rh-panel-header">
+            <h2>Glass Human</h2>
+            <span>Tap &amp; explore your body</span>
+          </div>
+          <div class="rh-iframe-wrap">
+            <div class="rh-iframe">
+              <!-- 👇 Your existing Glass app -->
+              <iframe
+                src="https://www.roothealth.app/glass"
+                title="Glass Human Diagnostic"
+              ></iframe>
+            </div>
+            <p class="rh-note">
+              Take 1&ndash;3 minutes to explore the areas that feel tight,
+              painful, inflamed or overloaded. When you&apos;re ready, pick your
+              main focus areas on the right.
+            </p>
+          </div>
+        </section>
+
+        <!-- RIGHT: Focus & summary -->
+        <aside class="rh-side">
+          <section class="rh-card">
+            <h3>What are you mainly working on right now?</h3>
+            <p>Select 1&ndash;3 so we can tailor your plan inside Root Health.</p>
+            <div class="pill-row" id="goal-pills">
+              <button class="pill" data-goal="stress">
+                <span>Stress &amp; anxiety</span>
+              </button>
+              <button class="pill" data-goal="mood">
+                <span>Low mood / trauma</span>
+              </button>
+              <button class="pill" data-goal="joints">
+                <span>Joints, tendons &amp; pain</span>
+              </button>
+              <button class="pill" data-goal="weight">
+                <span>Weight &amp; metabolism</span>
+              </button>
+              <button class="pill" data-goal="sleep">
+                <span>Sleep &amp; recovery</span>
+              </button>
+              <button class="pill" data-goal="energy">
+                <span>Energy &amp; focus</span>
+              </button>
+              <button class="pill" data-goal="gut">
+                <span>Gut &amp; digestion</span>
+              </button>
+              <button class="pill" data-goal="mind">
+                <span>Overthinking / mind load</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="rh-card">
+            <h3>Your personalised suggestions inside Root Health</h3>
+            <p>
+              As you choose your focus areas, we&apos;ll suggest how to use the
+              app &mdash; coaches, routines and journalling &mdash; to support
+              you over the long term.
+            </p>
+
+            <div class="summary-box" id="summary-box">
+              <h4>Waiting for your selections</h4>
+              <p>
+                Tap on the options above. We&apos;ll outline where to start:
+                assessments, coaches, daily routines and journal prompts based
+                on what you&apos;re dealing with.
+              </p>
+            </div>
+
+            <div class="cta-area">
+              <a
+                id="continue-btn"
+                class="cta-btn"
+                href="https://roothealth.app"
+              >
+                <span>Continue to Root Health App</span>
+                <span class="icon">→</span>
+              </a>
+              <p class="cta-note">
+                Inside the app you&apos;ll get 8 free credits. We recommend:
+                run a full assessment, meet your coach, and start journalling
+                progress against the areas you highlighted here.
+              </p>
+            </div>
+          </section>
+        </aside>
+      </main>
     </div>
 
-    <!-- RIGHT: diagnostic panel -->
-    <div class="panel">
-      <h1>Root Health · Glass Human</h1>
-      <p>Select or drag a point on the body, then choose system + sensation.</p>
+    <footer class="rh-footer">
+      Root Health &middot; Lifestyle, mindset and recovery &mdash; all in one
+      place.
+    </footer>
 
-      <!-- zoom control -->
-      <div class="zoom-row">
-        <label for="zoom">Zoom</label>
-        <input id="zoom" type="range" min="80" max="160" value="100" />
-      </div>
+    <script>
+      const GOAL_COPY = {
+        stress: {
+          label: "Stress & anxiety",
+          bullets: [
+            "Use the Stress Coach and panic-attack support tracks when your nervous system spikes.",
+            "Build a 7–14 day calming routine with breathing, bilateral audio and grounding exercises.",
+            "Journal your triggers and wins each day so you can see what genuinely helps you settle."
+          ],
+          tags: ["stress", "anxiety"]
+        },
+        mood: {
+          label: "Low mood / trauma",
+          bullets: [
+            "Start with a full assessment to map how mood, sleep, energy and coping strategies connect.",
+            "Use guided sessions to process difficult memories at a safe pace alongside everyday support.",
+            "Use the journal to track emotional load, flashpoints and small daily stabilisers."
+          ],
+          tags: ["mood", "trauma"]
+        },
+        joints: {
+          label: "Joints, tendons & pain",
+          bullets: [
+            "Focus on pain & mobility routines that gradually reload joints without overwhelming them.",
+            "Track inflammation, stiffness and flare-ups so patterns around load, stress and sleep become visible.",
+            "Use coaching to adjust expectations, pacing and long-term recovery habits."
+          ],
+          tags: ["pain", "joints", "inflammation"]
+        },
+        weight: {
+          label: "Weight & metabolism",
+          bullets: [
+            "Use the assessment to map sleep, stress, movement and cravings &mdash; not just calories.",
+            "Create simple, sustainable routines around movement, meals and non-food rewards.",
+            "Use the journal to notice emotional eating patterns and build kinder strategies."
+          ],
+          tags: ["weight", "metabolism"]
+        },
+        sleep: {
+          label: "Sleep & recovery",
+          bullets: [
+            "Design a gentle evening routine using breathing, bilateral sounds and wind-down prompts.",
+            "Track bedtime, wake-ups and morning energy to see how routines change your curve.",
+            "Use coaching to manage racing thoughts and night-time stress patterns."
+          ],
+          tags: ["sleep", "recovery"]
+        },
+        energy: {
+          label: "Energy & focus",
+          bullets: [
+            "Map your daily energy curve and identify where stress, diet or sleep are draining you most.",
+            "Build small, repeatable focus blocks and recovery breaks across your day.",
+            "Use the journal to track brain fog, focus windows and what boosts or crashes you."
+          ],
+          tags: ["energy", "focus"]
+        },
+        gut: {
+          label: "Gut & digestion",
+          bullets: [
+            "Track meals, symptoms and stress levels to uncover patterns in flares or discomfort.",
+            "Use routines to stabilise mealtimes, hydration and wind-down periods.",
+            "Work with coaching prompts to reduce gut-focused anxiety and hypervigilance."
+          ],
+          tags: ["gut", "digestion"]
+        },
+        mind: {
+          label: "Overthinking / mind load",
+          bullets: [
+            "Use thought-unloading and grounding prompts to stop loops from spiralling.",
+            "Schedule brief 'mental reset' blocks across the day with breathing and bilateral tools.",
+            "Journal the biggest mental loads and gradually turn them into plans, boundaries or support steps."
+          ],
+          tags: ["mind", "overthinking"]
+        }
+      };
 
-      <h2>Selected area: <span id="selected">none</span></h2>
+      const pillRow = document.getElementById("goal-pills");
+      const summaryBox = document.getElementById("summary-box");
+      const continueBtn = document.getElementById("continue-btn");
 
-      <h3>Body system / organ</h3>
-      <div id="systemChips" class="chips"></div>
+      let activeGoals = new Set();
 
-      <h3 style="margin-top:1rem;">Layer</h3>
-      <div id="layerChips" class="chips"></div>
+      pillRow.addEventListener("click", (e) => {
+        const pill = e.target.closest(".pill");
+        if (!pill) return;
 
-      <h3 style="margin-top:1rem;">Sensation</h3>
-      <div id="symptomChips" class="chips"></div>
+        const goalKey = pill.dataset.goal;
+        if (!goalKey) return;
 
-      <h3 style="margin-top:1rem;">Duration</h3>
-      <div id="durationChips" class="chips"></div>
+        if (activeGoals.has(goalKey)) {
+          activeGoals.delete(goalKey);
+          pill.classList.remove("active");
+        } else {
+          if (activeGoals.size >= 3) {
+            const firstKey = activeGoals.values().next().value;
+            activeGoals.delete(firstKey);
+            const firstPill = pillRow.querySelector(
+              `.pill[data-goal="${firstKey}"]`
+            );
+            if (firstPill) firstPill.classList.remove("active");
+          }
+          activeGoals.add(goalKey);
+          pill.classList.add("active");
+        }
 
-      <h3 style="margin-top:1rem;">Intensity</h3>
-      <div id="intensityChips" class="chips"></div>
+        renderSummary();
+        updateContinueLink();
+      });
 
-      <button id="analyze" class="primary" style="margin-top:1.5rem;">See my insight</button>
+      function renderSummary() {
+        if (activeGoals.size === 0) {
+          summaryBox.innerHTML =
+            '<h4>Waiting for your selections</h4><p>Tap on the options above. We&apos;ll outline where to start: assessments, coaches, daily routines and journal prompts based on what you&apos;re dealing with.</p>';
+          return;
+        }
 
-      <div id="result" class="result" style="display:none;">
-        <h3>Insight</h3>
-        <p id="summary"></p>
-        <ul id="factors"></ul>
-        <ul id="actions"></ul>
-        <p class="small">Educational only. Not medical advice.</p>
+        const keys = Array.from(activeGoals);
+        const labels = keys.map((k) => GOAL_COPY[k].label);
+        const allBullets = keys.flatMap((k) => GOAL_COPY[k].bullets);
 
-        <div class="cta-box">
-  <h4>Ready to act on this?</h4>
-  <p>This insight is the why. Root Health will help you manage, track and repair the pattern.</p>
-  <button id="continueBtn" class="secondary">Continue in RootHealth.app →</button>
-</div>
+        let html = `<h4>Based on what you selected</h4>`;
+        html += `<p>You highlighted: <strong>${labels.join(", ")}</strong>. Inside Root Health, we recommend:</p>`;
+        html += "<ul>";
+        allBullets.forEach((b) => {
+          html += `<li>${b}</li>`;
+        });
+        html += "</ul>";
 
-      </div>
-    </div>
-  </div>
+        summaryBox.innerHTML = html;
+      }
 
-  <script src="https://glass-human-diagnostic.vercel.app/app.js"></script>
-</body>
+      function updateContinueLink() {
+        if (activeGoals.size === 0) {
+          continueBtn.href = "https://roothealth.app";
+          return;
+        }
+
+        const keys = Array.from(activeGoals);
+        const tags = Array.from(
+          new Set(keys.flatMap((k) => GOAL_COPY[k].tags))
+        );
+        const qs = encodeURIComponent(tags.join(","));
+        continueBtn.href = `https://roothealth.app?goals=${qs}`;
+      }
+
+      renderSummary();
+      updateContinueLink();
+    </script>
+  </body>
 </html>
