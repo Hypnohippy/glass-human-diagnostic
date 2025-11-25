@@ -14,7 +14,7 @@ const markers = [];
 let activeMarker = null;
 
 // 1) Region classifier: from click → broad region + side
-// Adjusted so heart clicks fall into CHEST, not neck/shoulders.
+// Tweaked so heart stays in CHEST and intestines land in LOWER ABDOMEN / PELVIS.
 function classifyRegion(xPercent, yPercent) {
   let side;
   if (xPercent < 0.33) side = "left";
@@ -29,17 +29,19 @@ function classifyRegion(xPercent, yPercent) {
     regionId = "head";
     regionLabel = "Head / brain / face";
   } else if (yPercent < 0.25) {
-    // Smaller neck/shoulder band
+    // Thin neck/shoulder band
     regionId = "neck_shoulders";
     regionLabel = "Neck & shoulders";
-  } else if (yPercent < 0.48) {
-    // Bigger chest band – heart taps around ~0.28 now land here
+  } else if (yPercent < 0.40) {
+    // Chest band (heart, lungs, sternum, ribs, breasts)
     regionId = "chest";
     regionLabel = "Chest / upper ribs";
-  } else if (yPercent < 0.6) {
+  } else if (yPercent < 0.56) {
+    // Upper abdomen (stomach, liver/gallbladder, pancreas, diaphragm)
     regionId = "upper_abdomen";
     regionLabel = "Upper abdomen";
   } else if (yPercent < 0.72) {
+    // Lower abdomen / pelvis (bowels/IBS, general gut, bladder, reproductive)
     regionId = "lower_abdomen_pelvis";
     regionLabel = "Lower abdomen / pelvis";
   } else if (yPercent < 0.82) {
