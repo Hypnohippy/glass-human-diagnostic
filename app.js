@@ -1,4 +1,4 @@
-// Multi-dot glass diagnostic with detailed refinement
+// Multi-dot glass diagnostic with detailed refinement + manual region override
 // NOTE: Lifestyle / load mapping only, not medical advice.
 
 const glassImage = document.getElementById("glass-image");
@@ -13,8 +13,20 @@ const detailHintEl = document.getElementById("detail-hint");
 const markers = [];
 let activeMarker = null;
 
+// For the region override pills:
+const REGION_DEFS = [
+  { id: "head", label: "Head / brain / face" },
+  { id: "neck_shoulders", label: "Neck & shoulders" },
+  { id: "chest", label: "Chest / upper ribs" },
+  { id: "upper_abdomen", label: "Upper abdomen" },
+  { id: "lower_abdomen_pelvis", label: "Lower abdomen / pelvis" },
+  { id: "knees", label: "Knees" },
+  { id: "lower_legs_feet", label: "Lower legs / feet" }
+];
+
 // 1) Region classifier: from click → broad region + side
-// Tweaked so heart stays in CHEST and intestines land in LOWER ABDOMEN / PELVIS.
+// Tweaked so heart stays in CHEST and intestines land in LOWER ABDOMEN / PELVIS,
+// but user can override region manually if needed.
 function classifyRegion(xPercent, yPercent) {
   let side;
   if (xPercent < 0.33) side = "left";
@@ -32,15 +44,15 @@ function classifyRegion(xPercent, yPercent) {
     // Thin neck/shoulder band
     regionId = "neck_shoulders";
     regionLabel = "Neck & shoulders";
-  } else if (yPercent < 0.40) {
+  } else if (yPercent < 0.38) {
     // Chest band (heart, lungs, sternum, ribs, breasts)
     regionId = "chest";
     regionLabel = "Chest / upper ribs";
-  } else if (yPercent < 0.56) {
+  } else if (yPercent < 0.52) {
     // Upper abdomen (stomach, liver/gallbladder, pancreas, diaphragm)
     regionId = "upper_abdomen";
     regionLabel = "Upper abdomen";
-  } else if (yPercent < 0.72) {
+  } else if (yPercent < 0.66) {
     // Lower abdomen / pelvis (bowels/IBS, general gut, bladder, reproductive)
     regionId = "lower_abdomen_pelvis";
     regionLabel = "Lower abdomen / pelvis";
@@ -67,23 +79,23 @@ function getOptionsForRegion(regionId, side) {
         {
           id: "headache_migraine",
           label: "Headache / migraine pain",
-          tags: ["mind", "tension", "headache"],
+          tags: ["mind", "tension", "headache"]
         },
         {
           id: "jaw_tension",
           label: "Jaw / clenching / TMJ",
-          tags: ["jaw", "tension", "stress"],
+          tags: ["jaw", "tension", "stress"]
         },
         {
           id: "sinus_congestion",
           label: "Sinuses / facial pressure",
-          tags: ["sinus", "inflammation"],
+          tags: ["sinus", "inflammation"]
         },
         {
           id: "brain_fog",
           label: "Brain fog / overthinking",
-          tags: ["mind", "overthinking", "fatigue"],
-        },
+          tags: ["mind", "overthinking", "fatigue"]
+        }
       ];
 
     case "neck_shoulders":
@@ -91,23 +103,23 @@ function getOptionsForRegion(regionId, side) {
         {
           id: "neck_muscles",
           label: "Neck muscles / tightness",
-          tags: ["tension", "posture", "stress"],
+          tags: ["tension", "posture", "stress"]
         },
         {
           id: "upper_traps",
           label: "Top of shoulders / upper traps",
-          tags: ["tension", "load", "stress"],
+          tags: ["tension", "load", "stress"]
         },
         {
           id: "throat_area",
           label: "Front of neck / throat area",
-          tags: ["throat", "stress"],
+          tags: ["throat", "stress"]
         },
         {
           id: "collarbone",
           label: "Collarbone / upper chest edge",
-          tags: ["posture", "bones"],
-        },
+          tags: ["posture", "bones"]
+        }
       ];
 
     case "chest":
@@ -115,33 +127,33 @@ function getOptionsForRegion(regionId, side) {
         {
           id: "heart_centre",
           label: "Heart area / centre of chest",
-          tags: ["heart", "cardio", "chest"],
+          tags: ["heart", "cardio", "chest"]
         },
         {
           id: "lung_side",
           label: `${sideWord}lung / side of chest`,
-          tags: ["lungs", "respiratory", "chest"],
+          tags: ["lungs", "respiratory", "chest"]
         },
         {
           id: "breast_tissue",
           label: `${sideWord}chest / breast tissue`,
-          tags: ["breast", "chest"],
+          tags: ["breast", "chest"]
         },
         {
           id: "sternum",
           label: "Sternum / front of rib cage",
-          tags: ["bones", "chest"],
+          tags: ["bones", "chest"]
         },
         {
           id: "ribs_front",
           label: "Ribs (front)",
-          tags: ["ribs", "chest"],
+          tags: ["ribs", "chest"]
         },
         {
           id: "shoulder_blades",
           label: `${sideWord}shoulder blade / upper back`,
-          tags: ["upper_back", "posture", "tension"],
-        },
+          tags: ["upper_back", "posture", "tension"]
+        }
       ];
 
     case "upper_abdomen":
@@ -149,23 +161,23 @@ function getOptionsForRegion(regionId, side) {
         {
           id: "stomach_upper",
           label: "Stomach / upper abdomen (acid, nausea, reflux)",
-          tags: ["stomach", "gut", "digestion"],
+          tags: ["stomach", "gut", "digestion"]
         },
         {
           id: "liver_gallbladder",
           label: `${side === "right" ? "Right " : ""}liver / gallbladder area`,
-          tags: ["liver", "gallbladder", "digestion"],
+          tags: ["liver", "gallbladder", "digestion"]
         },
         {
           id: "pancreas_central",
           label: "Pancreas area / central upper abdomen",
-          tags: ["pancreas", "metabolism", "digestion"],
+          tags: ["pancreas", "metabolism", "digestion"]
         },
         {
           id: "diaphragm_solar",
           label: "Diaphragm / solar plexus tightness",
-          tags: ["breathing", "stress", "diaphragm"],
-        },
+          tags: ["breathing", "stress", "diaphragm"]
+        }
       ];
 
     case "lower_abdomen_pelvis":
@@ -173,23 +185,23 @@ function getOptionsForRegion(regionId, side) {
         {
           id: "colon_ibs",
           label: "Colon / bowels (IBS-type cramps, urgency or bloating)",
-          tags: ["gut", "colon", "ibs", "digestion"],
+          tags: ["gut", "colon", "ibs", "digestion"]
         },
         {
           id: "general_gut",
           label: "General gut / bloating / cramping",
-          tags: ["gut", "digestion"],
+          tags: ["gut", "digestion"]
         },
         {
           id: "bladder",
           label: "Bladder / urinary discomfort",
-          tags: ["bladder", "pelvis"],
+          tags: ["bladder", "pelvis"]
         },
         {
           id: "reproductive_organs",
           label: `${sideWord}reproductive organs (period pain, pelvic load)`,
-          tags: ["reproductive", "pelvis", "hormones"],
-        },
+          tags: ["reproductive", "pelvis", "hormones"]
+        }
       ];
 
     case "knees":
@@ -197,23 +209,23 @@ function getOptionsForRegion(regionId, side) {
         {
           id: "kneecap_front",
           label: `${sideWord}front of knee / kneecap`,
-          tags: ["joints", "knees", "impact"],
+          tags: ["joints", "knees", "impact"]
         },
         {
           id: "knee_inside",
           label: `${sideWord}inside of knee joint`,
-          tags: ["joints", "knees", "ligaments"],
+          tags: ["joints", "knees", "ligaments"]
         },
         {
           id: "knee_outside",
           label: `${sideWord}outside of knee joint`,
-          tags: ["joints", "knees", "tendons"],
+          tags: ["joints", "knees", "tendons"]
         },
         {
           id: "knee_back",
           label: `${sideWord}back of knee`,
-          tags: ["joints", "knees"],
-        },
+          tags: ["joints", "knees"]
+        }
       ];
 
     case "lower_legs_feet":
@@ -221,23 +233,23 @@ function getOptionsForRegion(regionId, side) {
         {
           id: "calves",
           label: `${sideWord}calf muscles`,
-          tags: ["muscles", "load", "legs"],
+          tags: ["muscles", "load", "legs"]
         },
         {
           id: "shins",
           label: `${sideWord}shins / front of legs`,
-          tags: ["muscles", "impact", "legs"],
+          tags: ["muscles", "impact", "legs"]
         },
         {
           id: "ankles",
           label: `${sideWord}ankle joint`,
-          tags: ["joints", "ankles", "balance"],
+          tags: ["joints", "ankles", "balance"]
         },
         {
           id: "feet_arches",
           label: `${sideWord}foot arches / plantar surface`,
-          tags: ["feet", "support", "gait"],
-        },
+          tags: ["feet", "support", "gait"]
+        }
       ];
 
     default:
@@ -245,8 +257,8 @@ function getOptionsForRegion(regionId, side) {
         {
           id: "general_area",
           label: "General load in this area",
-          tags: ["mixed"],
-        },
+          tags: ["mixed"]
+        }
       ];
   }
 }
@@ -270,7 +282,7 @@ function addMarker(xPercent, yPercent) {
     side,
     options, // all possible structures
     selectedOptionIds: options.map((o) => o.id), // start with ALL selected -> user eliminates
-    el: markerEl,
+    el: markerEl
   };
 
   markerEl.addEventListener("click", (e) => {
@@ -314,7 +326,7 @@ function setActiveMarker(markerObj) {
   renderMarkers();
 }
 
-// 4) Rendering: list, detail options, summary
+// 4) Rendering: list, detail options, region override, summary
 
 function renderMarkers() {
   // Selected areas list
@@ -369,7 +381,7 @@ function renderMarkers() {
   renderSummary();
 }
 
-// Detail panel: options for active marker
+// Detail panel: region override + options for active marker
 
 function renderDetailPanel() {
   if (!activeMarker) {
@@ -383,24 +395,69 @@ function renderDetailPanel() {
   detailHintEl.innerHTML =
     "You&apos;re refining a dot in the area: <strong>" +
     activeMarker.regionLabel +
-    "</strong>. All likely structures are selected. Click to turn off what doesn&apos;t fit. At least one should remain.";
+    "</strong>. If this doesn&apos;t match, choose another region below, then turn off structures that don&apos;t fit. At least one structure should remain.";
 
-  activeMarker.options.forEach((opt) => {
+  // Region override bar
+  const bar = document.createElement("div");
+  bar.className = "detail-region-bar";
+
+  REGION_DEFS.forEach((r) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "detail-option";
-    btn.textContent = opt.label;
+    btn.className = "detail-region-btn";
+    btn.textContent = r.label;
 
-    if (activeMarker.selectedOptionIds.includes(opt.id)) {
+    if (r.id === activeMarker.regionId) {
       btn.classList.add("active");
     }
 
     btn.addEventListener("click", () => {
+      overrideRegionForActiveMarker(r.id);
+    });
+
+    bar.appendChild(btn);
+  });
+
+  detailOptionsEl.appendChild(bar);
+
+  // Structure options
+  const optionsWrap = document.createElement("div");
+  optionsWrap.className = "detail-options";
+
+  activeMarker.options.forEach((opt) => {
+    const optBtn = document.createElement("button");
+    optBtn.type = "button";
+    optBtn.className = "detail-option";
+    optBtn.textContent = opt.label;
+
+    if (activeMarker.selectedOptionIds.includes(opt.id)) {
+      optBtn.classList.add("active");
+    }
+
+    optBtn.addEventListener("click", () => {
       toggleOptionForActiveMarker(opt.id);
     });
 
-    detailOptionsEl.appendChild(btn);
+    optionsWrap.appendChild(optBtn);
   });
+
+  detailOptionsEl.appendChild(optionsWrap);
+}
+
+function overrideRegionForActiveMarker(newRegionId) {
+  if (!activeMarker) return;
+
+  const def = REGION_DEFS.find((r) => r.id === newRegionId);
+  if (!def) return;
+
+  activeMarker.regionId = def.id;
+  activeMarker.regionLabel = def.label;
+
+  const newOptions = getOptionsForRegion(def.id, activeMarker.side);
+  activeMarker.options = newOptions;
+  activeMarker.selectedOptionIds = newOptions.map((o) => o.id);
+
+  renderMarkers();
 }
 
 function toggleOptionForActiveMarker(optionId) {
@@ -458,7 +515,7 @@ function renderSummary() {
     themes.push({
       title: "Heart and central chest workload",
       text:
-        "You&apos;ve highlighted the heart / central chest area. Root Health can&apos;t replace medical assessment, but it can help you work on the lifestyle load around your heart: stress levels, sleep, movement, breathing patterns and long-term pacing. New, severe or worsening chest symptoms should always be checked by a doctor urgently.",
+        "You&apos;ve highlighted the heart / central chest area. Root Health can&apos;t replace medical assessment, but it can help you work on the lifestyle load around your heart: stress levels, sleep, movement, breathing patterns and long-term pacing. New, severe or worsening chest symptoms should always be checked by a doctor urgently."
     });
   }
 
@@ -466,7 +523,7 @@ function renderSummary() {
     themes.push({
       title: "Breathing mechanics and respiratory load",
       text:
-        "Dots around the lungs, ribs or diaphragm suggest that breathing mechanics, posture, fitness level or stress may be creating extra load. Inside Root Health you can use breathing tools, pacing strategies and gradual movement plans to support this system.",
+        "Dots around the lungs, ribs or diaphragm suggest that breathing mechanics, posture, fitness level or stress may be creating extra load. Inside Root Health you can use breathing tools, pacing strategies and gradual movement plans to support this system."
     });
   }
 
@@ -485,7 +542,7 @@ function renderSummary() {
     themes.push({
       title: "Gut, digestion and IBS-type load",
       text:
-        "Focus on the gut, bowels and upper abdomen often points to a mix of food triggers, stress, sleep, pacing and nervous system sensitivity. Root Health can help you track patterns (IBS flares, bloating, bowel changes), experiment with routines and support the gut–brain axis over time.",
+        "Focus on the gut, bowels and upper abdomen often points to a mix of food triggers, stress, sleep, pacing and nervous system sensitivity. Root Health can help you track patterns (IBS flares, bloating, bowel changes), experiment with routines and support the gut–brain axis over time."
     });
   }
 
@@ -495,7 +552,7 @@ function renderSummary() {
     themes.push({
       title: "Joints, impact and long-term load",
       text:
-        "Joints and supporting structures (knees, ankles, hips, ribs) carry mechanical load. Repeated dots here suggest that load management, strength, movement patterns and rest windows all matter. Root Health can help you design pacing plans, movement experiments and recovery routines.",
+        "Joints and supporting structures (knees, ankles, hips, ribs) carry mechanical load. Repeated dots here suggest that load management, strength, movement patterns and rest windows all matter. Root Health can help you design pacing plans, movement experiments and recovery routines."
     });
   }
 
@@ -503,7 +560,7 @@ function renderSummary() {
     themes.push({
       title: "Muscle tension, posture and stored stress",
       text:
-        "Neck, shoulders, jaw and upper back markers point to how you hold stress and load in the body. With Root Health you can explore micro-breaks, relaxation tools, posture tweaks and routines that gradually reduce this background tension.",
+        "Neck, shoulders, jaw and upper back markers point to how you hold stress and load in the body. With Root Health you can explore micro-breaks, relaxation tools, posture tweaks and routines that gradually reduce this background tension."
     });
   }
 
@@ -511,7 +568,7 @@ function renderSummary() {
     themes.push({
       title: "Mind, overthinking and nervous system load",
       text:
-        "Markers linked to brain fog, overthinking or headaches suggest that your nervous system and mind are carrying a lot. Root Health can support you with stress coaches, wind-down routines, thought-unloading prompts and tracking what genuinely helps you settle over weeks and months.",
+        "Markers linked to brain fog, overthinking or headaches suggest that your nervous system and mind are carrying a lot. Root Health can support you with stress coaches, wind-down routines, thought-unloading prompts and tracking what genuinely helps you settle over weeks and months."
     });
   }
 
@@ -519,7 +576,7 @@ function renderSummary() {
     themes.push({
       title: "Pelvic and hormonal load",
       text:
-        "Pelvic and reproductive markers often relate to hormonal cycles, chronic pelvic pain, or how stress and posture interact with these systems. Root Health can help you map symptoms against sleep, stress, movement and cycles, then build routines that respect those rhythms.",
+        "Pelvic and reproductive markers often relate to hormonal cycles, chronic pelvic pain, or how stress and posture interact with these systems. Root Health can help you map symptoms against sleep, stress, movement and cycles, then build routines that respect those rhythms."
     });
   }
 
@@ -527,7 +584,7 @@ function renderSummary() {
     themes.push({
       title: "Foundations, movement patterns and impact",
       text:
-        "Feet, ankles and lower legs act as your foundations. Dots here can signal that footwear, surface, movement style and general conditioning are part of the picture. Root Health can support experiments around pacing, footwear, walking patterns and recovery.",
+        "Feet, ankles and lower legs act as your foundations. Dots here can signal that footwear, surface, movement style and general conditioning are part of the picture. Root Health can support experiments around pacing, footwear, walking patterns and recovery."
     });
   }
 
@@ -535,7 +592,7 @@ function renderSummary() {
     themes.push({
       title: "Mixed pattern of load",
       text:
-        "You&apos;ve highlighted a mix of structures. That&apos;s common. Root Health helps you pick a sensible starting point, then layer changes over time instead of trying to fix everything at once.",
+        "You&apos;ve highlighted a mix of structures. That&apos;s common. Root Health helps you pick a sensible starting point, then layer changes over time instead of trying to fix everything at once."
     });
   }
 
