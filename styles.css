@@ -228,11 +228,56 @@ body {
   color: var(--muted);
   font-size: 0.8rem;
   cursor: pointer;
+  margin-bottom: 0.5rem;
 }
 
 .clear-btn:hover {
   border-color: rgba(248, 250, 252, 0.25);
   color: #e5e7eb;
+}
+
+/* Detail / refinement area */
+
+.detail-panel {
+  border-top: 1px solid rgba(148, 163, 184, 0.3);
+  padding-top: 0.6rem;
+}
+
+.detail-panel h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.9rem;
+}
+
+.detail-hint {
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.detail-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.detail-option {
+  font-size: 0.78rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgba(15, 23, 42, 0.95);
+  cursor: pointer;
+  color: var(--muted);
+  user-select: none;
+  transition: background 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease, transform 0.08s ease;
+}
+
+.detail-option.active {
+  background: linear-gradient(to right, #22c55e, #0ea5e9);
+  border-color: transparent;
+  color: #020617;
+  transform: translateY(-1px);
 }
 
 .summary {
@@ -242,7 +287,7 @@ body {
   border: 1px solid rgba(45, 212, 191, 0.3);
   font-size: 0.85rem;
   line-height: 1.4;
-  max-height: 220px;
+  max-height: 260px;
   overflow-y: auto;
 }
 
