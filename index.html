@@ -17,7 +17,7 @@
         <h1>Tap where your body and mind are calling for help</h1>
         <p>
           Use the glass body to drop pins on joints, muscles, gut and mind.
-          We&apos;ll summarise the themes so Root Health can guide your next steps.
+          Then refine each area so we can build a clear, detailed picture of what&apos;s going on.
         </p>
       </header>
 
@@ -25,7 +25,7 @@
         <!-- LEFT: Glass figure -->
         <section class="figure-panel">
           <div class="figure-wrapper">
-            <!-- 👇 This is your glass image -->
+            <!-- 👇 Your glass image -->
             <img
               src="Glassbody.png"
               alt="Glass human body outline"
@@ -36,18 +36,19 @@
             <div class="marker-layer" id="marker-layer"></div>
           </div>
           <p class="hint">
-            Click anywhere on the glass body to drop a dot. You can add multiple points.
-            Click a dot again to remove it. Think about pain, tension, overload or symptoms.
+            Click anywhere on the glass body to drop a dot. Each dot can be
+            refined into the exact structure affected (for example: heart, ribs,
+            bowels / IBS, shoulder blades). Click a dot again to remove it.
           </p>
         </section>
 
-        <!-- RIGHT: Selected areas + summary -->
+        <!-- RIGHT: Selected areas + refinement + summary -->
         <section class="side-panel">
           <div class="card">
             <h2>Selected areas</h2>
             <p>
-              Each dot becomes a line in your story. We&apos;ll group them into themes
-              like joints, gut, stress and recovery so Root Health can support you over time.
+              Each dot becomes a line in your story. Tap different regions, then
+              narrow down which structures are truly involved.
             </p>
 
             <ul class="area-list" id="areas-list">
@@ -57,17 +58,31 @@
             <button class="clear-btn" id="clear-btn" type="button">
               Clear all dots
             </button>
+
+            <div class="detail-panel" id="detail-panel">
+              <h3>Refine this area</h3>
+              <p class="detail-hint" id="detail-hint">
+                Click on the glass body, then use these options to remove what
+                doesn&apos;t fit until only the most accurate structures remain.
+              </p>
+              <div class="detail-options" id="detail-options">
+                <!-- Options for the active dot appear here -->
+              </div>
+            </div>
           </div>
 
           <div class="card">
-            <h2>Diagnostic themes</h2>
+            <h2>Diagnostic themes (lifestyle, not medical)</h2>
             <p class="card-sub">
-              This is not a medical diagnosis. It&apos;s a lifestyle map &mdash; patterns
-              Root Health can help you work with.
+              This isn&apos;t a diagnosis. It&apos;s a lifestyle and load map
+              &mdash; patterns Root Health can help you work with over time. For
+              new, severe or worrying symptoms (especially chest pain, breathing
+              issues or sudden changes), seek urgent medical care.
             </p>
             <div class="summary" id="summary-text">
-              Tap on the glass human to begin. As you add dots, we&apos;ll highlight
-              likely themes (joints, stress, gut, sleep, etc.).
+              Tap on the glass human to begin. As you refine each dot, we&apos;ll
+              highlight detailed themes (for example: IBS-type gut load, joint
+              strain, stress-driven tension, or heart/chest workload).
             </div>
           </div>
         </section>
